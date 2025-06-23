@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura de Imagen - Bruxism App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* CSS Variables for easier theme management */
+        :root {
+            --primary-color: #2575fc;
+            /* Vibrant Blue */
+            --primary-light: #4c8cff;
+            /* Lighter shade of primary */
+            --secondary-color: #6a11cb;
+            /* Purple for accent/hover */
+            --secondary-light: #8e44ad;
+            /* Lighter shade of secondary */
+            --background-light: #f5f8fc;
+            /* Very light, soft background */
+            --card-background: #ffffff;
+            /* Pure white for cards */
+            --text-dark: #2c3e50;
+            /* Darker text for contrast */
+            --text-medium: #5a6270;
+            /* Medium gray for descriptions */
+            --text-light: #fff;
+            /* White text */
+            --border-color: #e0e6ec;
+            /* Subtle border */
+            --shadow-light: rgba(37, 117, 252, 0.1);
+            /* Lighter shadow */
+            --shadow-medium: rgba(37, 117, 252, 0.25);
+            /* Medium shadow */
+            --shadow-heavy: rgba(26, 83, 191, 0.4);
+            /* Stronger shadow */
+            --success-color: #28a745;
+            /* Green for success */
+            --error-color: #dc3545;
+            /* Red for error */
+            --info-color: #17a2b8;
+            /* Light blue for info */
+            --neutral-button: #6c757d;
+            /* Grey for retake */
+            --neutral-button-hover: #5a6268;
+            /* Darker grey for retake hover */
+        }
+
+        /* Reset y base */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--background-light) 0%, #eef3f8 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-y: auto;
+            color: var(--text-dark);
+            padding: 20px;
+            text-align: center;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            background: var(--card-background);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 40px var(--shadow-light);
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            /* Ensure row direction for side-by-side */
+            align-items: center;
+            /* Center items vertically in the container */
+            flex-grow: 1;
+            margin: auto;
+            max-height: calc(100vh - 40px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex-basis: 60%;
+            /* Give more space to the left panel for the camera */
+            max-width: 600px;
+            /* Limit the width of the left panel */
+            margin-right: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* Center video vertically within the panel */
+        }
+
+        .right-panel {
+            flex-basis: 40%;
+            /* Allocate remaining space to the right panel */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            /* Align content to the left by default for flex items */
+            justify-content: center;
+            padding-left: 0;
+            text-align: center;
+            /* Center text within the right panel */
+        }
+
+        .right-panel h1,
+        .right-panel p.description,
+        .right-panel .button-group,
+        .right-panel .message {
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .right-panel .button-group {
+            justify-content: center;
+            /* Center buttons within their group */
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            font-weight: 700;
+            font-size: 2.0rem;
+            /* Adjusted font size */
+            color: var(--primary-color);
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            /* text-align: left; Removed as text-align: center is on right-panel */
+        }
+
+        p.description {
+            font-size: 1.0rem;
+            /* Adjusted font size */
+            color: var(--text-medium);
+            margin-bottom: 35px;
+            max-width: 100%;
+            /* text-align: left; Removed as text-align: center is on right-panel */
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 400px;
+            /* Increased minimum height for a larger camera view */
+            background-color: #f0f0f0;
+            border: 4px solid var(--primary-color);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px var(--shadow-medium);
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+            transition: border-color 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+            animation: pulse-border 2s infinite ease-in-out alternate;
+        }
+
+        .video-wrapper.camera-inactive {
+            animation: none;
+            border-color: var(--border-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes pulse-border {
+            0% {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 0 rgba(37, 117, 252, 0.4);
+            }
+
+            100% {
+                border-color: var(--primary-light);
+                box-shadow: 0 0 0 8px rgba(37, 117, 252, 0);
+            }
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        /* Styles for the frozen image (canvas) */
+        #frozenImage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #frozenImage.show {
+            opacity: 1;
+        }
+
+        .camera-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            color: #d0dbe6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .camera-placeholder p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #9aa7b5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 25px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            /* justify-content: flex-start; Removed as justify-content: center is on right-panel .button-group */
+            width: 100%;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: var(--text-light);
+            border: none;
+            border-radius: 35px;
+            padding: 16px 45px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 8px 20px var(--shadow-medium);
+            transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            white-space: nowrap;
+            min-width: 170px;
+        }
+
+        button:disabled {
+            background: #d8dee8;
+            color: #aebacd;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.8;
+        }
+
+        button i {
+            font-size: 1.4rem;
+        }
+
+        button:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-light) 100%);
+            box-shadow: 0 10px 25px var(--shadow-heavy);
+            transform: translateY(-3px);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px var(--shadow-medium);
+        }
+
+        /* Specific styles for the retake button */
+        #retakeBtn {
+            background: var(--neutral-button);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        #retakeBtn:hover:not(:disabled) {
+            background: var(--neutral-button-hover);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Message styling */
+        .message {
+            margin-top: 30px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+            text-align: center;
+            /* Ensure message is centered */
+        }
+
+        .message.show {
+            opacity: 1;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .message.info {
+            background-color: #d1ecf1;
+            color: var(--info-color);
+            border: 1px solid var(--info-color);
+        }
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                /* Stack panels vertically on smaller screens */
+                padding: 25px;
+                gap: 30px;
+                max-height: none;
+                /* Allow vertical scrolling if needed */
+                align-items: center;
+                text-align: center;
+            }
+
+            .left-panel,
+            .right-panel {
+                flex-basis: auto;
+                max-width: 100%;
+                margin-right: 0;
+                align-items: center;
+                text-align: center;
+            }
+
+            .left-panel {
+                max-width: 450px;
+                /* Limit video width on smaller screens */
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                /* Adjusted font size for smaller screens */
+                margin-bottom: 12px;
+            }
+
+            p.description {
+                font-size: 0.95rem;
+                /* Adjusted font size for smaller screens */
+                margin-bottom: 30px;
+            }
+
+            .video-wrapper {
+                margin-bottom: 25px;
+                min-height: 250px;
+                /* Adjust height for smaller screens */
+            }
+
+            button {
+                padding: 14px 35px;
+                font-size: 1.1rem;
+                min-width: unset;
+                flex-grow: 1;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 15px;
+                margin-top: 25px;
+                justify-content: center;
+                /* Ensure buttons are centered when stacked */
+            }
+        }
+
+        @media (max-width: 450px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px;
+                gap: 25px;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+                /* Further adjusted font size for very small screens */
+            }
+
+            p.description {
+                font-size: 0.9rem;
+                /* Further adjusted font size for very small screens */
+                margin-bottom: 20px;
+            }
+
+            .video-wrapper {
+                min-height: 200px;
+                /* Further adjust height for very small screens */
+            }
+
+            button {
+                padding: 12px 30px;
+                font-size: 1rem;
+                gap: 10px;
+            }
+
+            .camera-placeholder {
+                font-size: 3.5rem;
+                gap: 10px;
+            }
+
+            .camera-placeholder p {
+                font-size: 1.1rem;
+            }
+
+            .message {
+                font-size: 1rem;
+                padding: 12px 25px;
+                margin-top: 20px;
+            }
+        }
+
+        /* Optional: Landscape mode adjustments for phones */
+        @media (orientation: landscape) and (max-height: 550px) {
+            .container {
+                padding: 20px;
+                max-height: calc(100vh - 20px);
+                flex-direction: row;
+                /* Keep row in landscape */
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .left-panel {
+                flex-basis: 55%;
+                /* Give more space to video in landscape */
+                max-width: 55%;
+                margin-right: 15px;
+            }
+
+            .right-panel {
+                flex-grow: 1;
+                text-align: center;
+                /* Ensure text is centered in landscape */
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                /* Adjusted font size for landscape */
+                margin-bottom: 8px;
+            }
+
+            p.description {
+                font-size: 0.85rem;
+                /* Adjusted font size for landscape */
+                margin-bottom: 15px;
+            }
+
+            .video-wrapper {
+                min-height: 250px;
+                /* Adjust height in landscape for better view */
+                margin-bottom: 0;
+            }
+
+            button {
+                padding: 10px 25px;
+                font-size: 0.95rem;
+                min-width: unset;
+            }
+
+            .button-group {
+                flex-direction: row;
+                gap: 10px;
+                margin-top: 20px;
+                justify-content: center;
+                /* Ensure buttons are centered in landscape */
+            }
+
+            .message {
+                margin-top: 15px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="video-wrapper" id="videoWrapper">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="frozenImage"></canvas>
+                <div class="camera-placeholder" id="cameraPlaceholder">
+                    <i class="fas fa-video"></i>
+                    <p>Cargando cámara...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h1>Captura de Imagen Lingual</h1>
+            <p class="description">Por favor, pida al paciente que se acerque a la cámara entre 15-25cm y saque la
+                lengua completamente hacia adelante.
+                Asegúrese de contar con una iluminación adecuada y enfoque claro.</p>
+
+            <div class="button-group">
+                <button id="captureBtn">
+                    <i class="fas fa-camera"></i> <span id="captureBtnText">Capturar imagen</span> <i
+                        id="captureBtnSpinner" class="fas fa-spinner fa-spin" style="display:none;"></i>
+                </button>
+                <button id="retakeBtn" style="display:none;">
+                    <i class="fas fa-redo"></i> Reintentar
+                </button>
+                <button id="submitBtn" style="display:none;">
+                    <i class="fas fa-paper-plane"></i> <span id="submitBtnText">Enviar</span> <i id="submitBtnSpinner"
+                        class="fas fa-spinner fa-spin" style="display:none;"></i>
+                </button>
+            </div>
+
+            <div id="message" class="message" role="alert" aria-live="polite"></div>
+        </div>
+    </div>
+
+    <form id="imgForm" method="POST" style="display:none;">
+        <input type="hidden" name="image_data" id="imageData" />
+    </form>
+
+    <script>
+        const video = document.getElementById('video');
+        const captureBtn = document.getElementById('captureBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const imgForm = document.getElementById('imgForm'); // Still keeping for structure, but not submitting directly
+        const imageDataInput = document.getElementById('imageData');
+        const messageDiv = document.getElementById('message');
+        const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+        const frozenImageCanvas = document.getElementById('frozenImage');
+        const ctx = frozenImageCanvas.getContext('2d');
+        const videoWrapper = document.getElementById('videoWrapper');
+
+        const captureBtnText = document.getElementById('captureBtnText');
+        const captureBtnSpinner = document.getElementById('captureBtnSpinner');
+        const submitBtnText = document.getElementById('submitBtnText');
+        const submitBtnSpinner = document.getElementById('submitBtnSpinner');
+
+        let currentStream; // To store the camera stream reference
+
+        // Function to show messages with fade-in/out
+        function showMessage(text, type, duration = 3000) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => { // Trigger fade-in
+                messageDiv.classList.add('show');
+            }, 10);
+
+            if (duration > 0) {
+                setTimeout(() => {
+                    messageDiv.classList.remove('show');
+                    setTimeout(() => { // Hide completely after fade-out
+                        messageDiv.style.display = 'none';
+                    }, 400); // Match transition duration
+                }, duration);
+            }
+        }
+
+        // Function to start the camera
+        function startCamera() {
+            // Reset UI state
+            video.style.display = 'block';
+            frozenImageCanvas.classList.remove('show'); // Hide captured image gracefully
+            frozenImageCanvas.style.display = 'none'; // Then set display none
+            cameraPlaceholder.style.display = 'flex'; // Show placeholder while loading
+            captureBtn.disabled = true; // Disable capture until camera is ready
+            captureBtn.style.display = 'inline-flex';
+            retakeBtn.style.display = 'none';
+            submitBtn.style.display = 'none';
+            captureBtnText.textContent = 'Capturar imagen';
+            captureBtnSpinner.style.display = 'none';
+            submitBtnText.textContent = 'Enviar';
+            submitBtnSpinner.style.display = 'none';
+            messageDiv.classList.remove('show'); // Hide any existing messages
+            messageDiv.style.display = 'none';
+
+            videoWrapper.classList.remove('camera-inactive'); // Add pulse animation for active camera
+            videoWrapper.classList.add('camera-active');
+
+            // Attempt to access the camera
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    currentStream = stream; // Save stream reference
+                    video.srcObject = stream;
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        // Set canvas dimensions after video metadata is loaded
+                        frozenImageCanvas.width = video.videoWidth;
+                        frozenImageCanvas.height = video.videoHeight;
+
+                        cameraPlaceholder.style.display = 'none'; // Hide placeholder
+                        captureBtn.disabled = false; // Enable capture button
+                        showMessage('Cámara lista. Posiciónate y captura.', 'info', 3000);
+                        videoWrapper.classList.add('camera-active'); // Ensure active class is there
+                    };
+                })
+                .catch(e => {
+                    console.error('Error al acceder a la cámara:', e);
+                    showMessage('No se pudo acceder a la cámara. Asegúrate de otorgar permisos y de que no esté en uso.', 'error', 7000);
+                    cameraPlaceholder.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Acceso a cámara denegado o no disponible.</p>';
+                    cameraPlaceholder.style.display = 'flex';
+                    captureBtn.disabled = true; // Keep button disabled
+                    videoWrapper.classList.remove('camera-active'); // Remove pulse animation
+                    videoWrapper.classList.add('camera-inactive'); // Indicate inactive camera
+                });
+        }
+
+        // Call startCamera on page load
+        document.addEventListener('DOMContentLoaded', startCamera);
+
+        // Event listener for Capture button
+        captureBtn.addEventListener('click', () => {
+            if (captureBtn.disabled) return;
+
+            if (!video.srcObject || video.readyState < video.HAVE_ENOUGH_DATA) {
+                showMessage('La cámara no está lista. Por favor, espera.', 'error', 5000);
+                return;
+            }
+
+            // Draw the current video frame onto the hidden canvas
+            ctx.drawImage(video, 0, 0, frozenImageCanvas.width, frozenImageCanvas.height);
+
+            // Hide video and show the "frozen" image (canvas)
+            video.style.display = 'none';
+            frozenImageCanvas.style.display = 'block';
+            setTimeout(() => { // Trigger fade-in for the image
+                frozenImageCanvas.classList.add('show');
+            }, 10);
+
+
+            // Stop video stream to "freeze" the image and release resources
+            if (currentStream) {
+                let tracks = currentStream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null; // Clear stream object
+                currentStream = null; // Clear stream reference
+            }
+            videoWrapper.classList.remove('camera-active'); // Stop pulse animation
+            videoWrapper.classList.add('camera-inactive'); // Indicate inactive camera
+
+            // Enable retake and submit buttons, disable capture
+            captureBtn.disabled = true;
+            captureBtn.style.display = 'none';
+            retakeBtn.style.display = 'inline-flex';
+            submitBtn.style.display = 'inline-flex';
+
+            showMessage('¡Imagen capturada! Revisa la imagen y decide si enviarla.', 'success', 7000);
+        });
+
+        // Event listener for Spacebar to capture
+        document.addEventListener('keydown', (event) => {
+            // Check if the spacebar is pressed and capture button is visible and enabled
+            if (event.code === 'Space' && captureBtn.style.display !== 'none' && !captureBtn.disabled) {
+                event.preventDefault(); // Prevent scrolling
+                captureBtn.click(); // Trigger capture button click
+            }
+        });
+
+        // Event listener for Retake button
+        retakeBtn.addEventListener('click', () => {
+            if (retakeBtn.disabled) return;
+
+            // Restart the camera
+            startCamera();
+            showMessage('Cámara reiniciada. Intenta una nueva captura.', 'info', 3000);
+        });
+
+        // Event listener for Submit button
+        submitBtn.addEventListener('click', async () => { // Made async to use await
+            if (submitBtn.disabled) return;
+
+            // Show processing message and spinner, disable buttons
+            showMessage('Enviando imagen para análisis, por favor espera...', 'info', 0); // Duration 0 means it won't disappear automatically
+            submitBtn.disabled = true;
+            retakeBtn.disabled = true;
+
+            // Show spinner on submit button
+            submitBtnText.textContent = 'Enviando...';
+            submitBtnSpinner.style.display = 'inline-block';
+
+            // --- REDIMENSIONAR Y COMPRIMIR LA IMAGEN ANTES DE ENVIAR ---
+            const MAX_WIDTH = 1280; // Resolución máxima deseada para la imagen (ancho)
+            const MAX_HEIGHT = 720; // Resolución máxima deseada para la imagen (alto)
+            const JPEG_QUALITY = 0.8; // Calidad JPEG (0.0 a 1.0, 0.8 es un buen balance)
+
+            let width = frozenImageCanvas.width;
+            let height = frozenImageCanvas.height;
+
+            // Calcular nuevas dimensiones manteniendo el ratio
+            if (width > height) {
+                if (width > MAX_WIDTH) {
+                    height = Math.round(height * (MAX_WIDTH / width));
+                    width = MAX_WIDTH;
+                }
+            } else {
+                if (height > MAX_HEIGHT) {
+                    width = Math.round(width * (MAX_HEIGHT / height));
+                    height = MAX_HEIGHT;
+                }
+            }
+
+            // Crear un canvas temporal para el redimensionamiento
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            const tempContext = tempCanvas.getContext('2d');
+            tempContext.drawImage(frozenImageCanvas, 0, 0, width, height); // Dibujar la imagen redimensionada
+
+            // Obtener la imagen redimensionada y comprimida en base64 (como JPEG)
+            const resizedImageDataUrl = tempCanvas.toDataURL('image/jpeg', JPEG_QUALITY);
+            // --- FIN DEL REDIMENSIONAMIENTO Y COMPRESIÓN ---
+
+            // Ahora enviar la imagen redimensionada usando Fetch API (mejor que form.submit() para este caso)
+            try {
+                const response = await fetch('/capture', { // Endpoint Flask
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', // Importante para enviar JSON
+                    },
+                    body: JSON.stringify({ image_data: resizedImageDataUrl }), // Envía los datos como JSON
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showMessage(result.message || 'Imagen procesada con éxito.', 'success', 3000);
+                    // Si Flask devuelve una URL de redirección (como en tu 'upload' route)
+                    if (result.redirect_url) {
+                        window.location.href = result.redirect_url;
+                    } else {
+                        // Si no hay redirección, maneja la respuesta aquí
+                        console.log('Success:', result);
+                        submitBtn.disabled = false;
+                        retakeBtn.disabled = false;
+                        submitBtnText.textContent = 'Enviar';
+                        submitBtnSpinner.style.display = 'none';
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({ message: response.statusText })); // Intenta parsear JSON, si no, usa el status text
+                    console.error('Server error:', response.status, errorData);
+                    let errorMessage = `Error del servidor (${response.status}): ${errorData.message || 'Error desconocido.'}`;
+                    if (response.status === 413) {
+                        errorMessage = "La imagen es aún demasiado grande. Intenta capturar una foto con menos detalle o desde más lejos.";
+                    }
+                    showMessage(errorMessage, 'error', 7000);
+                    submitBtn.disabled = false;
+                    retakeBtn.disabled = false;
+                    submitBtnText.textContent = 'Enviar';
+                    submitBtnSpinner.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Network or fetch error:', error);
+                showMessage('Error de conexión o de red: ' + error.message + '. Verifica tu conexión.', 'error', 7000);
+                submitBtn.disabled = false;
+                retakeBtn.disabled = false;
+                submitBtnText.textContent = 'Enviar';
+                submitBtnSpinner.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

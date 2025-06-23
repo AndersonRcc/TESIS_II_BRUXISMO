@@ -1,0 +1,26 @@
+# Entorno virtual
+venv/
+
+# Cachés de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de Jupyter
+.ipynb_checkpoints/
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+
+# Subidas del usuario y resultados
+static/uploads/
+static/results/
+
+# Archivos de logs o temporales
+*.log
+
+# Modelos pesados (evitar errores en GitHub)
+pretrained_model/*.pt
+pretrained_model/*.pth

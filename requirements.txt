@@ -1,0 +1,10 @@
+Flask==2.3.2
+torch==2.3.1
+torchvision==0.18.1
+numpy==1.26.4
+Pillow==11.2.1
+opencv-python==4.11.0.86
+scikit-image==0.25.2
+gunicorn==23.0.0
+# Instalación de Segment Anything desde GitHub usando la etiqueta correcta
+git+https://github.com/facebookresearch/segment-anything.git@main#egg=segment-anything

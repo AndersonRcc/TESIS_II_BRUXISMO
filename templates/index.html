@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Apoyo para el Prediagnóstico de Bruxismo</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* CSS Variables for easier theme management */
+        :root {
+            --primary-background: #f0f6f9;
+            /* Soft, very light blue-grey for a clean clinical feel */
+            --accent-color: #007bff;
+            /* A slightly softer, professional blue for accents, could be #007bb6 or #008cba for more teal */
+
+            /* --- COLORES DEL BOTÓN --- */
+            --button-bg-color: var(--accent-color);
+            /* Fondo del botón: azul clínico */
+            --button-text-color: white;
+            /* Texto del botón: blanco */
+
+            --button-hover-bg-color: #e6f0f5;
+            /* Fondo del botón al pasar el ratón: gris muy claro/blanco sutil */
+            --button-hover-text-color: var(--accent-color);
+            /* Texto del botón al pasar el ratón: azul clínico */
+            /* ------------------------------------------------------------------------- */
+
+
+            --text-color-dark: #2c3e50;
+            /* Darker, more muted text for readability on light background (e.g., charcoal) */
+            --text-color-dark-subtle: #55606e;
+            /* Slightly lighter dark for paragraphs */
+
+            --shadow-button: 0 4px 12px rgba(0, 0, 0, 0.08);
+            /* Lighter, softer shadow for buttons */
+            --shadow-button-hover: 0 6px 16px rgba(0, 0, 0, 0.12);
+            /* Lighter, softer hover shadow */
+
+            --image-border-color: rgba(0, 0, 0, 0.05);
+            /* Very subtle dark border for image on light background */
+            --image-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            /* Softer, lighter shadow for image */
+        }
+
+        /* Reset y base */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            /* Scroll behavior is now controlled by JS for a slower effect */
+            /* scroll-behavior: smooth; */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--primary-background);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            color: var(--text-color-dark);
+            text-align: center;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .main-content-wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            max-width: 960px;
+            width: 100%;
+            padding: 100px 20px;
+            position: relative;
+            /* This is the positioning context for the icons */
+            z-index: 1;
+            /* Ensures content is above floating icons */
+            min-height: 100vh;
+            /* Ensure it takes full viewport height initially */
+        }
+
+        .text-content {
+            flex: 1;
+            padding-right: 60px;
+            text-align: left;
+            max-width: 500px;
+            min-width: 300px;
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.5rem);
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+            font-weight: 700;
+            color: var(--text-color-dark);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            line-height: 1.1;
+        }
+
+        p {
+            font-size: clamp(0.85rem, 1.4vw, 1rem);
+            margin-bottom: 40px;
+            opacity: 1;
+            color: var(--text-color-dark-subtle);
+        }
+
+        .button-wrapper {
+            margin-top: 20px;
+        }
+
+        .scroll-button {
+            background: var(--button-bg-color);
+            color: var(--button-text-color);
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+            padding: 15px 35px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: var(--shadow-button);
+            transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+        }
+
+        .scroll-button:hover {
+            background: var(--button-hover-bg-color);
+            color: var(--button-hover-text-color);
+            box-shadow: var(--shadow-button-hover);
+            transform: translateY(-2px);
+        }
+
+        .scroll-button:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-button);
+        }
+
+        /* Main decorative image styling */
+        .main-decorative-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 450px;
+            min-width: 250px;
+            margin-left: 20px;
+        }
+
+        .main-decorative-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            border: 3px solid var(--image-border-color);
+            box-shadow: var(--image-shadow);
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Options box below */
+        .options-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            /* Ensure it takes full viewport height when scrolled to */
+            width: 100%;
+            padding: 40px 20px;
+            background: var(--primary-background);
+            /* Match body background */
+            box-sizing: border-box;
+        }
+
+        .options-box {
+            padding: 45px 35px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            width: clamp(350px, 80vw, 700px);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            text-align: center;
+        }
+
+        .options-box.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .options-box h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.5rem);
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+            font-weight: 700;
+            color: var(--text-color-dark);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            line-height: 1.1;
+            width: 100%;
+        }
+
+        .option-button {
+            background: var(--button-bg-color);
+            color: var(--button-text-color);
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+            padding: 15px 35px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: var(--shadow-button);
+            transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            flex-grow: 1;
+            max-width: 250px;
+            min-width: 150px;
+        }
+
+        .option-button:hover {
+            background: var(--button-hover-bg-color);
+            color: var(--button-hover-text-color);
+            box-shadow: var(--shadow-button-hover);
+            transform: translateY(-2px);
+        }
+
+        .option-button:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-button);
+        }
+
+        /* --- ICON STYLES FOR FLOATING AROUND MAIN CONTENT --- */
+        .icon {
+            position: absolute;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 1;
+            /* Sin desenfoque */
+            animation: subtleFloat 8s ease-in-out infinite;
+            /* Animación reactivada */
+        }
+
+        /* Adjusted positions relative to .main-content-wrapper to surround the image/text */
+        /* These values are fine-tuned based on the screenshot provided */
+        .icon-caries {
+            top: 5%;
+            left: 65%;
+            transform: translate(-50%, -50%);
+            /* Transformación base para centrado */
+            width: clamp(70px, 10vw, 90px);
+            animation-delay: 0s;
+        }
+
+        .icon-false-teeth {
+            top: 45%;
+            right: -11%;
+            transform: translate(50%, -50%);
+            /* Transformación base para centrado */
+            width: clamp(65px, 6vw, 45px);
+            animation-delay: 2s;
+        }
+
+        .icon-tongue {
+            bottom: 7%;
+            right: 12%;
+            transform: translate(50%, 50%);
+            /* Transformación base para centrado */
+            width: clamp(45px, 8vw, 65px);
+            animation-delay: 4s;
+        }
+
+        /* Keyframes for the floating animation */
+        /* IMPORTANT: Now, the translate values within the keyframes
+           are *additional* movements relative to the icon's base position.
+           The initial transform (e.g., translate(-50%, -50%)) will always apply,
+           and then 'subtleFloat' will add small movements on top of that.
+        */
+        @keyframes subtleFloat {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+
+            25% {
+                transform: translate(5px, -5px) rotate(5deg) scale(1.03);
+            }
+
+            50% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+
+            75% {
+                transform: translate(-5px, 5px) rotate(-5deg) scale(0.97);
+            }
+
+            100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+        }
+
+
+        /* Responsive adjustments for the layout */
+        @media (max-width: 900px) {
+            .main-content-wrapper {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 60px 15px;
+            }
+
+            .text-content {
+                padding-right: 0;
+                margin-bottom: 40px;
+                max-width: 80%;
+                min-width: unset;
+            }
+
+            h1 {
+                font-size: clamp(1.4rem, 5vw, 2.2rem);
+            }
+
+            p {
+                font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+            }
+
+            .main-decorative-image {
+                max-width: 70%;
+                margin-left: 0;
+                margin-top: 40px;
+            }
+
+            .options-box {
+                width: 90vw;
+                padding: 35px 25px;
+                flex-direction: column;
+            }
+
+            .options-box h2 {
+                font-size: clamp(1.4rem, 5vw, 2rem);
+                margin-bottom: 20px;
+            }
+
+            .option-button {
+                width: 90%;
+                max-width: 300px;
+            }
+
+            /* Adjust icon positions for smaller screens relative to wrapper */
+            .icon-caries {
+                top: 2%;
+                left: 15%;
+                width: clamp(50px, 8vw, 70px);
+            }
+
+            .icon-false-teeth {
+                top: 5%;
+                right: 2%;
+                width: clamp(30px, 5vw, 45px);
+            }
+
+            .icon-tongue {
+                bottom: 2%;
+                right: 2%;
+                width: clamp(40px, 7vw, 60px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: clamp(1.2rem, 6vw, 2rem);
+            }
+
+            p {
+                font-size: clamp(0.75rem, 2vw, 0.9rem);
+            }
+
+            .scroll-button {
+                font-size: clamp(0.9rem, 2vw, 1rem);
+                padding: 12px 30px;
+            }
+
+            .main-decorative-image {
+                max-width: 90%;
+                margin-top: 30px;
+            }
+
+            .options-section {
+                padding: 20px;
+                margin-top: 30px;
+            }
+
+            .options-box {
+                gap: 15px;
+                padding: 25px 20px;
+            }
+
+            .options-box h2 {
+                font-size: clamp(1.2rem, 6vw, 1.8rem);
+                margin-bottom: 15px;
+            }
+
+            .option-button {
+                padding: 12px 25px;
+                font-size: clamp(0.85rem, 2.3vw, 1rem);
+            }
+
+            /* Further adjustments for even smaller screens relative to wrapper */
+            .icon-caries {
+                top: 1%;
+                left: 10%;
+            }
+
+            .icon-false-teeth {
+                top: 3%;
+                right: 1%;
+            }
+
+            .icon-tongue {
+                bottom: 1%;
+                right: 1%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content-wrapper">
+        <div class="text-content">
+            <h1>Sistema de Apoyo para la Evaluación de Bruxismo</h1>
+            <p>Este sistema permite analizar imágenes de la lengua del paciente para detectar posibles marcas dentales
+                asociadas al bruxismo.
+                Para comenzar una nueva evaluación, haga clic en el botón a continuación.</p>
+            <div class="button-wrapper">
+                <a href="#options-section" class="scroll-button" id="startButton">Iniciar evaluación</a>
+            </div>
+        </div>
+
+        <div class="main-decorative-image">
+            <img src="{{ url_for('static', filename='app.jpg') }}" alt="Imagen principal relacionada con Bruxismo" />
+        </div>
+
+        <img width="100" height="100" src="https://img.icons8.com/bubbles/100/tooth-caries.png" alt="Caries dental"
+            class="icon icon-caries" />
+        <img width="48" height="48" src="https://img.icons8.com/color/48/false-teeth.png" alt="Dentadura postiza"
+            class="icon icon-false-teeth" />
+        <img width="64" height="64"
+            src="https://img.icons8.com/external-flaticons-flat-flat-icons/64/external-tongue-anatomy-flaticons-flat-flat-icons.png"
+            alt="Anatomía de la lengua" class="icon icon-tongue" />
+    </div>
+
+    <div id="options-section" class="options-section">
+        <div class="options-box" id="optionsBox">
+            <h2>Elige una opción</h2>
+            <a href="{{ url_for('upload') }}" class="option-button">Subir Imagen</a>
+            <a href="{{ url_for('capture') }}" class="option-button">Tomar Imagen</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const startButton = document.getElementById('startButton');
+            const optionsBox = document.getElementById('optionsBox');
+
+            startButton.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Show the options box immediately for animation
+                optionsBox.classList.add('show');
+
+                const targetElement = document.querySelector(this.getAttribute('href'));
+
+                if (targetElement) {
+                    const startPosition = window.pageYOffset;
+                    // Scroll to the top of the options section
+                    const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+
+                    const distance = targetPosition - startPosition;
+                    const duration = 1500; // 1.5 segundos para un desplazamiento lento
+                    let startTime = null;
+
+                    function animateScroll(currentTime) {
+                        if (startTime === null) startTime = currentTime;
+                        const progress = (currentTime - startTime) / duration;
+                        // Ease-in-out function for smoother animation
+                        const easeInOutQuad = t => t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                        const easedProgress = easeInOutQuad(progress);
+
+                        window.scrollTo(0, startPosition + distance * easedProgress);
+
+                        if (progress < 1) {
+                            requestAnimationFrame(animateScroll);
+                        }
+                    }
+
+                    requestAnimationFrame(animateScroll);
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

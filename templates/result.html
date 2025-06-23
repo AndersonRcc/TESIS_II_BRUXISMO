@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Análisis Dental</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Variables CSS */
+        :root {
+            --primary-color: #2575fc;
+            /* Azul vibrante */
+            --secondary-color: #6a11cb;
+            /* Morado para hover */
+            --background-light: #f0f4f8;
+            /* Fondo claro y suave */
+            --text-dark: #333;
+            /* Texto oscuro principal */
+            --text-light: #fff;
+            /* Texto claro */
+            --border-color: #e0e6ec;
+            /* Color de borde sutil */
+            --shadow-light: rgba(37, 117, 252, 0.2);
+            /* Sombra ligera */
+            --shadow-medium: rgba(37, 117, 252, 0.4);
+            /* Sombra media */
+            --shadow-heavy: rgba(26, 83, 191, 0.6);
+            /* Sombra fuerte */
+            --success-color: #28a745;
+            /* Verde para éxito */
+            --warning-color: #ffc107;
+            /* Naranja para advertencia/incertidumbre */
+            --info-color: #17a2b8;
+            /* Azul claro para información */
+            --danger-color: #dc3545;
+            /* Rojo para peligro/positivo */
+            --disclaimer-color: #6c757d;
+            /* Color para el disclaimer */
+            --box-background: #FFFFFF;
+            /* Mantener blanco para las cajas internas */
+            --info-box-background: #F7FAFF;
+            /* Color de fondo del cuadro de info más claro */
+        }
+
+        /* Reset básico */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--background-light) 0%, #e0e6ec 100%);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 15px;
+            text-align: center;
+            line-height: 1.6;
+            overflow-y: auto;
+        }
+
+        .container {
+            background: var(--box-background);
+            border-radius: 18px;
+            padding: 30px 25px;
+            box-shadow: 0 12px 35px var(--shadow-light);
+            max-width: 950px;
+            width: 100%;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-weight: 700;
+            font-size: 2.4rem;
+            letter-spacing: 0.7px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        p.summary {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 25px;
+            max-width: 650px;
+        }
+
+        /* Contenedor principal de los resultados */
+        .content-and-buttons-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            gap: 25px;
+        }
+
+        .main-content-area {
+            flex: 3;
+            min-width: 500px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 30px;
+        }
+
+        .results-info-column {
+            flex: 1;
+            margin-left: 4%;
+            min-width: 270px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            text-align: left;
+        }
+
+        .image-column {
+            flex: 1;
+            min-width: 270px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            /* Added for positioning the icon */
+        }
+
+        .info-box {
+            background: var(--info-box-background);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 3px 10px var(--shadow-light);
+        }
+
+        .info-box p {
+            font-size: 1rem;
+            margin: 8px 0;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .info-box b {
+            font-weight: 700;
+        }
+
+        .info-box p.prediction-label {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .info-box p.prediction-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .info-box p.confidence-label {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .info-box p.confidence-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .info-box p.recommendation-label {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .info-box p.recommendation-text {
+            font-size: 0.95rem;
+            font-style: italic;
+            margin-top: 0;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Estilos específicos para el texto de la predicción según su estado */
+        #predictionText.marked {
+            color: var(--danger-color);
+        }
+
+        #predictionText.unmarked {
+            color: var(--success-color);
+        }
+
+        #predictionText.uncertain {
+            color: var(--warning-color);
+        }
+
+        .image-column h3 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        img {
+            border: 3px solid var(--primary-color);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px var(--shadow-medium);
+            max-width: 100%;
+            height: auto;
+            display: block;
+            max-height: 280px;
+            object-fit: contain;
+        }
+
+        /* Style for the new download icon */
+        .download-image-icon {
+            position: absolute;
+            top: 60px;
+            /* Adjust as needed */
+            right: 10px;
+            /* Adjust as needed, relative to image-column */
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px var(--shadow-light);
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .download-image-icon:hover {
+            background: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+
+        .button-column-wrapper {
+            flex: 1;
+            min-width: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: 120px;
+            gap: 15px;
+        }
+
+        .button-link {
+            text-decoration: none;
+            width: 100%;
+            display: flex;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: var(--text-light);
+            border: none;
+            border-radius: 35px;
+            padding: 10px 28px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 5px 15px var(--shadow-medium);
+            transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            width: auto;
+        }
+
+
+        button i {
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            box-shadow: 0 7px 20px var(--shadow-heavy);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px var(--shadow-medium);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--disclaimer-color);
+            margin-top: 25px;
+            text-align: center;
+            padding: 8px;
+            border-top: 1px solid var(--border-color);
+            max-width: 750px;
+        }
+
+        /* Media Queries para diseño responsivo en diferentes tamaños de pantalla */
+        @media (max-width: 950px) {
+            .content-and-buttons-wrapper {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+
+            .main-content-area,
+            .button-column-wrapper {
+                width: 100%;
+                min-width: unset;
+                flex: unset;
+            }
+
+            .image-column img {
+                max-width: 70%;
+            }
+
+            .button-column-wrapper {
+                align-items: center;
+                margin-top: 0;
+            }
+
+            .button-link {
+                justify-content: center;
+            }
+
+            button {
+                width: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            p.summary {
+                font-size: 0.95rem;
+            }
+
+            .info-box p {
+                font-size: 0.95rem;
+            }
+
+            .info-box p.prediction-value,
+            .info-box p.confidence-value {
+                font-size: 1.2rem;
+            }
+
+            .info-box p.recommendation-text {
+                font-size: 0.9rem;
+            }
+
+            .image-column h3 {
+                font-size: 1.2rem;
+            }
+
+            button {
+                padding: 10px 30px;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .info-box p {
+                font-size: 0.9rem;
+            }
+
+            .info-box p.prediction-value,
+            .info-box p.confidence-value {
+                font-size: 1.1rem;
+            }
+
+            .image-column h3 {
+                font-size: 1rem;
+            }
+
+            button {
+                padding: 8px 20px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="results-container-web">
+        <h1>Reporte del análisis</h1>
+        <p class="summary">Aquí tienes el reporte detallado obtenido del análisis de la imagen lingual.</p>
+        <div class="content-and-buttons-wrapper">
+            <div class="main-content-area">
+                <div class="results-info-column">
+                    <div class="info-box">
+                        <p class="prediction-label">Estado Predicho:</p>
+                        <p class="prediction-value"><b id="predictionText">{{ pred }}</b></p>
+
+                        <p class="confidence-label">Nivel de Confianza:</p>
+                        <p class="confidence-value"><b id="probabilitiesText"></b></p>
+
+                        <p class="recommendation-label">Recomendación:</p>
+                        <p class="recommendation-text" id="recommendationText"></p>
+                    </div>
+                </div>
+
+                <div class="image-column">
+                    <h3>Lengua Segmentada</h3>
+                    <img id="analyzedImage" src="{{ url_for('static', filename='results/' + result_img) }}"
+                        alt="Imagen analizada de tu lengua" />
+                    <a href="{{ url_for('static', filename='results/' + result_img) }}" download
+                        class="download-image-icon" title="Descargar imagen">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="button-column-wrapper">
+                <a href="{{ url_for('index') }}" class="button-link">
+                    <button>
+                        <i class="fas fa-redo"></i> Nuevo análisis
+                    </button>
+                </a>
+                <button id="downloadPdfButton">
+                    <i class="fas fa-file-pdf"></i> Descargar informe
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <p class="disclaimer">
+        <b>Importante:</b> Este análisis es una herramienta de apoyo al diagnóstico y no sustituye la evaluación
+        clínica.
+    </p>
+
+    <script>
+        // Obtener los elementos HTML donde se mostrarán los resultados dinámicamente
+        const predictionTextElement = document.getElementById('predictionText');
+        const recommendationText = document.getElementById('recommendationText');
+        const probabilitiesTextElement = document.getElementById('probabilitiesText');
+        const downloadPdfButton = document.getElementById('downloadPdfButton');
+        const analyzedImage = document.getElementById('analyzedImage');
+        // Removed const reportDateElement = document.getElementById('reportDate');
+
+        // Get current date and time and format it - This part will now only be used for the PDF
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const formattedReportDate = `Fecha del Reporte: ${now.toLocaleDateString('es-ES', options)}`;
+
+        // Obtener los datos de predicción y probabilidades pasados desde Flask
+        const rawPrediction = predictionTextElement.textContent.toLowerCase().trim();
+        const rawProbabilities = "{{ probs }}"; // Flask pasa esto como una cadena
+
+        let recommendation = '';
+        let displayConfidence = 'N/A';
+        let translatedPrediction = '';
+
+        let probsArray = [];
+        try {
+            const parsedProbs = JSON.parse(rawProbabilities.replace(/'/g, '"'));
+            if (Array.isArray(parsedProbs) && parsedProbs.length > 0) {
+                probsArray = parsedProbs.map(p => parseFloat(p));
+            } else {
+                throw new Error("Las probabilidades parseadas no son un array válido.");
+            }
+        } catch (e) {
+            console.error('Error al analizar las probabilidades:', e);
+            const singleProb = parseFloat(rawProbabilities.trim());
+            if (!isNaN(singleProb)) {
+                probsArray = [singleProb];
+            }
+        }
+
+        // Calcular y mostrar el nivel de confianza (la probabilidad más alta)
+        if (probsArray.length > 0) {
+            const maxProb = Math.max(...probsArray);
+            displayConfidence = `${(maxProb * 100).toFixed(2)}%`;
+        } else if (!isNaN(parseFloat(rawProbabilities.trim()))) {
+            displayConfidence = `${(parseFloat(rawProbabilities.trim()) * 100).toFixed(2)}%`;
+        }
+        probabilitiesTextElement.textContent = displayConfidence;
+
+        // Traducir la predicción y determinar la recomendación y clase de estilo
+        if (rawPrediction.includes('unmarked')) {
+            translatedPrediction = 'Lengua sin marcas';
+            predictionTextElement.classList.add('unmarked');
+            recommendation = 'Los resultados indican que <strong>no se han detectado marcas significativas</strong> en la imagen que sugieran bruxismo. Esto no descarta la necesidad de una evaluación clínica completa.';
+        } else if (rawPrediction.includes('marked')) {
+            translatedPrediction = 'Lengua con marcas';
+            predictionTextElement.classList.add('marked');
+            recommendation = 'Se han detectado marcas que <strong>podrían ser consistentes con bruxismo</strong>. Se recomienda una evaluación clínica detallada para confirmar el diagnóstico y planificar el tratamiento.';
+        } else if (rawPrediction.includes('incertidumbre') || (probsArray.length > 0 && Math.max(...probsArray) < 0.6)) {
+            translatedPrediction = 'Incierto';
+            predictionTextElement.classList.add('uncertain');
+            recommendation = 'La clasificación <strong>no es concluyente</strong> debido a la calidad de la imagen o a la ambigüedad de las características. Se sugiere una nueva captura con mejor calidad o una evaluación clínica directa.';
+        } else {
+            translatedPrediction = rawPrediction; // Fallback para cualquier otra predicción
+            recommendation = 'Para una interpretación más precisa, se recomienda una evaluación clínica por un profesional.';
+        }
+
+        predictionTextElement.textContent = translatedPrediction;
+        recommendationText.innerHTML = recommendation;
+
+        // --- PDF Generation Logic (Highly Improved) ---
+        downloadPdfButton.addEventListener('click', async () => {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4'); // Portrait, millimeters, A4 size
+
+            // Define custom colors (matching your CSS variables)
+            const primaryColor = '#2575fc';
+            const darkTextColor = '#333';
+            const lightGreyColor = '#666';
+            const disclaimerColor = '#6c757d';
+            const markedColor = '#dc3545';
+            const unmarkedColor = '#28a745';
+            const uncertainColor = '#ffc107';
+
+            // Page dimensions
+            const pageWidth = pdf.internal.pageSize.width;
+            const pageHeight = pdf.internal.pageSize.height;
+            const margin = 20; // Uniform margin of 20mm
+            const contentWidth = pageWidth - (2 * margin);
+            let currentY = margin; // Starting Y position
+
+            // --- Header Section ---
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(28); // Larger, more impactful title
+            pdf.setTextColor(primaryColor);
+            pdf.text('Reporte del análisis', pageWidth / 2, currentY, { align: 'center' }); // Updated title
+            currentY += 12;
+
+            pdf.setFontSize(10);
+            pdf.setTextColor(lightGreyColor);
+            pdf.text('Reporte detallado obtenido del análisis de la imagen lingual.', pageWidth / 2, currentY, { align: 'center' });
+            currentY += 8; // Space after summary
+
+            // Add date and time to PDF (using the formattedReportDate variable)
+            pdf.setFontSize(9);
+            pdf.setTextColor(disclaimerColor); // Using disclaimer color for date/time
+            pdf.text(formattedReportDate, pageWidth / 2, currentY, { align: 'center' });
+            currentY += 15; // Space after date/time
+
+            // Add a subtle line below the header
+            pdf.setDrawColor(primaryColor);
+            pdf.setLineWidth(0.4); // Slightly thicker line
+            pdf.line(margin, currentY, pageWidth - margin, currentY);
+            currentY += 15; // Space after line
+
+            // --- Main Content Area (Two Columns) ---
+            const columnGap = 15; // Gap between columns
+            const columnWidth = (contentWidth - columnGap) / 2;
+
+            const column1X = margin;
+            const column2X = margin + columnWidth + columnGap;
+
+            let column1Y = currentY;
+            let column2Y = currentY;
+
+            // Left Column: Prediction, Confidence, Recommendation
+            // Box for results info
+            pdf.setDrawColor(primaryColor);
+            pdf.setFillColor(247, 250, 255); // var(--info-box-background) in RGB
+            pdf.roundedRect(column1X, column1Y - 5, columnWidth, 110, 5, 5, 'FD'); // x, y, width, height, rx, ry, style
+
+            let internalY = column1Y + 5; // Internal Y for content within the box
+
+            // Prediction
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(16);
+            pdf.setTextColor(primaryColor);
+            pdf.text('Estado Predicho:', column1X + 5, internalY); // Indent within box
+            internalY += 8;
+
+            let predColor = darkTextColor;
+            if (predictionTextElement.classList.contains('marked')) {
+                predColor = markedColor;
+            } else if (predictionTextElement.classList.contains('unmarked')) {
+                predColor = unmarkedColor;
+            } else if (predictionTextElement.classList.contains('uncertain')) {
+                predColor = uncertainColor;
+            }
+            pdf.setFontSize(22);
+            pdf.setTextColor(predColor);
+            pdf.text(translatedPrediction, column1X + 5, internalY);
+            internalY += 15;
+
+            // Confidence
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(16);
+            pdf.setTextColor(primaryColor);
+            pdf.text('Nivel de Confianza:', column1X + 5, internalY);
+            internalY += 8;
+
+            pdf.setFontSize(22);
+            pdf.setTextColor(darkTextColor);
+            pdf.text(displayConfidence, column1X + 5, internalY);
+            internalY += 15;
+
+            // Recommendation
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(16);
+            pdf.setTextColor(primaryColor);
+            pdf.text('Recomendación:', column1X + 5, internalY);
+            internalY += 8;
+
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(10);
+            pdf.setTextColor(lightGreyColor);
+            const plainRecommendationText = recommendationText.textContent;
+            // Adjust columnWidth for text to fit inside box with padding
+            const splitRecommendation = pdf.splitTextToSize(plainRecommendationText, columnWidth - 10); // 5mm padding each side
+            pdf.text(splitRecommendation, column1X + 5, internalY);
+            internalY += (splitRecommendation.length * 4.5);
+
+            // Adjust column1Y to be the bottom of the box
+            column1Y = Math.max(column1Y + 110, internalY + 10); // ensure box height covers text if longer
+
+            // Right Column: Segmented Image
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(16);
+            pdf.setTextColor(primaryColor);
+            pdf.text('Lengua Segmentada:', column2X, column2Y);
+            column2Y += 10;
+
+            try {
+                // Ensure image is loaded before attempting to draw
+                await new Promise((resolve, reject) => {
+                    if (analyzedImage.complete && analyzedImage.naturalWidth > 0) {
+                        resolve();
+                    } else {
+                        analyzedImage.onload = resolve;
+                        analyzedImage.onerror = reject;
+                    }
+                });
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = analyzedImage.naturalWidth;
+                canvas.height = analyzedImage.naturalHeight;
+                context.drawImage(analyzedImage, 0, 0);
+                const imgData = canvas.toDataURL('image/png');
+
+                const maxImgWidth = columnWidth - 10; // Image should fit in its column with some padding
+                const maxImgHeight = 120; // Define a max height
+
+                let imgWidthPdf = maxImgWidth;
+                let imgHeightPdf = (canvas.height * imgWidthPdf) / canvas.width;
+
+                // Adjust if height exceeds maxImgHeight
+                if (imgHeightPdf > maxImgHeight) {
+                    imgHeightPdf = maxImgHeight;
+                    imgWidthPdf = (canvas.width * imgHeightPdf) / canvas.height;
+                }
+
+                // Center image within its column
+                const imgX = column2X + (columnWidth / 2) - (imgWidthPdf / 2);
+                pdf.addImage(imgData, 'PNG', imgX, column2Y, imgWidthPdf, imgHeightPdf);
+                column2Y += imgHeightPdf + 15;
+
+            } catch (error) {
+                console.error("Error generating image for PDF:", error);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(10);
+                pdf.setTextColor(markedColor);
+                pdf.text('No se pudo cargar la imagen segmentada en el PDF.', column2X, column2Y);
+                column2Y += 10;
+            }
+
+            // Move currentY down to the lowest point of the two columns for next elements
+            currentY = Math.max(column1Y, column2Y);
+
+            // Ensure there's enough space for the disclaimer before adding it
+            if (currentY + 30 > pageHeight) { // 30mm for disclaimer and buffer
+                pdf.addPage();
+                currentY = margin;
+            }
+
+            // --- Footer / Disclaimer Section ---
+            const footerY = pageHeight - margin + 5; // Fixed position from bottom
+
+            pdf.setDrawColor(primaryColor);
+            pdf.setLineWidth(0.3);
+            pdf.line(margin, footerY - 10, pageWidth - margin, footerY - 10); // Line above disclaimer
+
+            pdf.setFont('helvetica', 'italic'); // Disclaimer often uses italic
+            pdf.setFontSize(9);
+            pdf.setTextColor(disclaimerColor);
+            const disclaimerText = 'Importante: Este análisis es una herramienta de apoyo al diagnóstico y no sustituye la evaluación clínica.';
+            const splitDisclaimer = pdf.splitTextToSize(disclaimerText, contentWidth);
+            pdf.text(splitDisclaimer, pageWidth / 2, footerY, { align: 'center' });
+
+
+            pdf.save('Reporte_Analisis_Dental.pdf');
+        });
+    </script>
+</body>
+
+</html>

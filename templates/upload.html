@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir Imagen - Bruxism App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2575fc;
+            /* Vibrant Blue */
+            --primary-light: #4c8cff;
+            /* Lighter shade of primary */
+            --secondary-color: #6a11cb;
+            /* Purple for accent/hover */
+            --secondary-light: #8e44ad;
+            /* Lighter shade of secondary */
+            --background-light: #f5f8fc;
+            /* Very light, soft background */
+            --card-background: #ffffff;
+            /* Pure white for cards */
+            --text-dark: #2c3e50;
+            /* Darker text for contrast */
+            --text-medium: #5a6270;
+            /* Medium gray for descriptions */
+            --text-light: #fff;
+            /* White text */
+            --border-color: #e0e6ec;
+            /* Subtle border */
+            --shadow-light: rgba(37, 117, 252, 0.1);
+            /* Lighter shadow */
+            --shadow-medium: rgba(37, 117, 252, 0.25);
+            /* Medium shadow */
+            --shadow-heavy: rgba(26, 83, 191, 0.4);
+            /* Stronger shadow */
+            --success-color: #28a745;
+            /* Green for success */
+            --error-color: #dc3545;
+            /* Red for error */
+            --info-color: #17a2b8;
+            /* Light blue for info */
+            --neutral-button: #6c757d;
+            /* Grey for retake */
+            --neutral-button-hover: #5a6268;
+            /* Darker grey for retake hover */
+        }
+
+        /* Reset y base */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--background-light) 0%, #eef3f8 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-y: auto;
+            color: var(--text-dark);
+            padding: 20px;
+            text-align: center;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            background: var(--card-background);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 40px var(--shadow-light);
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            /* Ensure row direction for side-by-side */
+            align-items: center;
+            /* Center items vertically in the container */
+            flex-grow: 1;
+            margin: auto;
+            max-height: calc(100vh - 40px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex-basis: 60%;
+            /* Give more space to the left panel for the camera */
+            max-width: 600px;
+            /* Limit the width of the left panel */
+            margin-right: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* Center video vertically within the panel */
+        }
+
+        .right-panel {
+            flex-basis: 40%;
+            /* Allocate remaining space to the right panel */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            /* Align content to the left by default for flex items */
+            justify-content: center;
+            padding-left: 0;
+            text-align: center;
+            /* Center text within the right panel */
+        }
+
+        .right-panel h1,
+        .right-panel p.description,
+        .right-panel .button-group,
+        .right-panel .message {
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .right-panel .button-group {
+            justify-content: center;
+            /* Center buttons within their group */
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            font-weight: 700;
+            font-size: 2.0rem;
+            /* Adjusted font size */
+            color: var(--primary-color);
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            /* text-align: left; Removed as text-align: center is on right-panel */
+        }
+
+        p.description {
+            font-size: 1.0rem;
+            /* Adjusted font size */
+            color: var(--text-medium);
+            margin-bottom: 35px;
+            max-width: 100%;
+            /* text-align: left; Removed as text-align: center is on right-panel */
+        }
+
+        .image-display-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 400px;
+            background-color: #f0f0f0;
+            border: 4px solid var(--primary-color);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px var(--shadow-medium);
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+            transition: border-color 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+            animation: pulse-border 2s infinite ease-in-out alternate;
+        }
+
+        .image-display-wrapper.inactive {
+            animation: none;
+            border-color: var(--border-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes pulse-border {
+            0% {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 0 rgba(37, 117, 252, 0.4);
+            }
+
+            100% {
+                border-color: var(--primary-light);
+                box-shadow: 0 0 0 8px rgba(37, 117, 252, 0);
+            }
+        }
+
+        #uploadedImage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* Changed to contain to fit image fully */
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #uploadedImage.show {
+            opacity: 1;
+        }
+
+        .upload-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            color: #d0dbe6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-align: center;
+            cursor: pointer;
+            /* Indicate it's clickable */
+            padding: 20px;
+            /* Add padding for a larger clickable area */
+            border-radius: 10px;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .upload-placeholder:hover {
+            color: #b3c0cf;
+            transform: translate(-50%, -50%) scale(1.03);
+        }
+
+        .upload-placeholder p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #9aa7b5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 25px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            width: 100%;
+            justify-content: center;
+            /* Center buttons within the group */
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: var(--text-light);
+            border: none;
+            border-radius: 35px;
+            padding: 16px 45px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 8px 20px var(--shadow-medium);
+            transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            white-space: nowrap;
+            min-width: 170px;
+        }
+
+        button:disabled {
+            background: #d8dee8;
+            color: #aebacd;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.8;
+        }
+
+        button i {
+            font-size: 1.4rem;
+        }
+
+        button:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-light) 100%);
+            box-shadow: 0 10px 25px var(--shadow-heavy);
+            transform: translateY(-3px);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px var(--shadow-medium);
+        }
+
+        /* Specific styles for the retake button (now "Cambiar Imagen") */
+        #changeImageBtn {
+            background: var(--neutral-button);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        #changeImageBtn:hover:not(:disabled) {
+            background: var(--neutral-button-hover);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Message styling */
+        .message {
+            margin-top: 30px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+            text-align: center;
+        }
+
+        .message.show {
+            opacity: 1;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .message.info {
+            background-color: #d1ecf1;
+            color: var(--info-color);
+            border: 1px solid var(--info-color);
+        }
+
+        /* Hidden file input */
+        #fileInput {
+            display: none;
+        }
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                /* Stack panels vertically on smaller screens */
+                padding: 25px;
+                gap: 30px;
+                max-height: none;
+                /* Allow vertical scrolling if needed */
+                align-items: center;
+                text-align: center;
+            }
+
+            .left-panel,
+            .right-panel {
+                flex-basis: auto;
+                max-width: 100%;
+                margin-right: 0;
+                align-items: center;
+                text-align: center;
+            }
+
+            .left-panel {
+                max-width: 450px;
+                /* Limit image display width on smaller screens */
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                /* Adjusted font size for smaller screens */
+                margin-bottom: 12px;
+            }
+
+            p.description {
+                font-size: 0.95rem;
+                /* Adjusted font size for smaller screens */
+                margin-bottom: 30px;
+            }
+
+            .image-display-wrapper {
+                margin-bottom: 25px;
+                min-height: 250px;
+                /* Adjust height for smaller screens */
+            }
+
+            button {
+                padding: 14px 35px;
+                font-size: 1.1rem;
+                min-width: unset;
+                flex-grow: 1;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 15px;
+                margin-top: 25px;
+                justify-content: center;
+                /* Ensure buttons are centered when stacked */
+            }
+        }
+
+        @media (max-width: 450px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px;
+                gap: 25px;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+                /* Further adjusted font size for very small screens */
+            }
+
+            p.description {
+                font-size: 0.9rem;
+                /* Further adjusted font size for very small screens */
+                margin-bottom: 20px;
+            }
+
+            .image-display-wrapper {
+                min-height: 200px;
+                /* Further adjust height for very small screens */
+            }
+
+            button {
+                padding: 12px 30px;
+                font-size: 1rem;
+                gap: 10px;
+            }
+
+            .upload-placeholder {
+                font-size: 3.5rem;
+                gap: 10px;
+            }
+
+            .upload-placeholder p {
+                font-size: 1.1rem;
+            }
+
+            .message {
+                font-size: 1rem;
+                padding: 12px 25px;
+                margin-top: 20px;
+            }
+        }
+
+        /* Optional: Landscape mode adjustments for phones */
+        @media (orientation: landscape) and (max-height: 550px) {
+            .container {
+                padding: 20px;
+                max-height: calc(100vh - 20px);
+                flex-direction: row;
+                /* Keep row in landscape */
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .left-panel {
+                flex-basis: 55%;
+                /* Give more space to image display in landscape */
+                max-width: 55%;
+                margin-right: 15px;
+            }
+
+            .right-panel {
+                flex-grow: 1;
+                text-align: center;
+                /* Ensure text is centered in landscape */
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                /* Adjusted font size for landscape */
+                margin-bottom: 8px;
+            }
+
+            p.description {
+                font-size: 0.85rem;
+                /* Adjusted font size for landscape */
+                margin-bottom: 15px;
+            }
+
+            .image-display-wrapper {
+                min-height: 250px;
+                /* Adjust height in landscape for better view */
+                margin-bottom: 0;
+            }
+
+            button {
+                padding: 10px 25px;
+                font-size: 0.95rem;
+                min-width: unset;
+            }
+
+            .button-group {
+                flex-direction: row;
+                gap: 10px;
+                margin-top: 20px;
+                justify-content: center;
+                /* Ensure buttons are centered in landscape */
+            }
+
+            .message {
+                margin-top: 15px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="image-display-wrapper" id="imageDisplayWrapper">
+                <img id="uploadedImage" src="#" alt="Imagen Subida">
+                <div class="upload-placeholder" id="uploadPlaceholder">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Haz clic para subir una imagen</p>
+                </div>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h1>Subir imagen lingual</h1>
+            <p class="description">Seleccione una imagen clara de la lengua del paciente desde su dispositivo.
+                Asegúrese de que la lengua esté completamente visible y con buena iluminación.
+            </p>
+
+            <div class="button-group">
+                <button id="changeImageBtn" style="display:none;">
+                    <i class="fas fa-redo"></i> Cambiar Imagen
+                </button>
+                <button id="submitBtn">
+                    <i class="fas fa-paper-plane"></i> <span id="submitBtnText">Enviar</span> <i id="submitBtnSpinner"
+                        class="fas fa-spinner fa-spin" style="display:none;"></i>
+                </button>
+            </div>
+
+            <div id="message" class="message" role="alert" aria-live="polite"></div>
+        </div>
+    </div>
+
+    <form id="imgForm" method="POST" enctype="multipart/form-data" style="display:none;">
+        <input type="file" name="image_file" id="imageFileToSubmit" />
+    </form>
+
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        // Removed uploadTriggerBtn as it's no longer needed
+        const changeImageBtn = document.getElementById('changeImageBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const imgForm = document.getElementById('imgForm');
+        const imageFileToSubmit = document.getElementById('imageFileToSubmit'); // New input for submitting the actual file
+        const messageDiv = document.getElementById('message');
+        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+        const uploadedImage = document.getElementById('uploadedImage');
+        const imageDisplayWrapper = document.getElementById('imageDisplayWrapper');
+
+        // Removed uploadBtnText
+        const submitBtnText = document.getElementById('submitBtnText');
+        const submitBtnSpinner = document.getElementById('submitBtnSpinner');
+
+        let selectedFile = null; // To store the selected file object
+
+        // Function to show messages with fade-in/out
+        function showMessage(text, type, duration = 3000) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => { // Trigger fade-in
+                messageDiv.classList.add('show');
+            }, 10);
+
+            if (duration > 0) {
+                setTimeout(() => {
+                    messageDiv.classList.remove('show');
+                    setTimeout(() => { // Hide completely after fade-out
+                        messageDiv.style.display = 'none';
+                    }, 400); // Match transition duration
+                }, duration);
+            }
+        }
+
+        // Initial UI state setup
+        function resetUIForUpload() {
+            uploadedImage.classList.remove('show');
+            uploadedImage.style.display = 'none';
+            uploadedImage.src = '#'; // Clear previous image
+            uploadPlaceholder.style.display = 'flex';
+
+            // submitBtn is always visible but disabled initially
+            submitBtn.disabled = true;
+            submitBtn.style.background = '#d8dee8'; // Set disabled background color
+            submitBtn.style.color = '#aebacd'; // Set disabled text color
+
+            changeImageBtn.style.display = 'none';
+            changeImageBtn.disabled = false; // Ensure change image is enabled when shown
+
+            submitBtnText.textContent = 'Enviar';
+            submitBtnSpinner.style.display = 'none';
+            messageDiv.classList.remove('show');
+            messageDiv.style.display = 'none';
+            imageDisplayWrapper.classList.remove('inactive');
+            imageDisplayWrapper.classList.add('active'); // Re-enable pulse for upload state
+            selectedFile = null; // Clear the selected file
+            fileInput.value = ''; // Clear file input value
+        }
+
+        document.addEventListener('DOMContentLoaded', resetUIForUpload);
+
+        // Trigger file input click when placeholder is clicked
+        uploadPlaceholder.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    showMessage('Por favor, selecciona un archivo de imagen válido (JPG, PNG, GIF, etc.).', 'error', 5000);
+                    resetUIForUpload();
+                    return;
+                }
+
+                selectedFile = file; // Store the selected file
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImage.src = e.target.result;
+                    uploadedImage.style.display = 'block';
+                    setTimeout(() => {
+                        uploadedImage.classList.add('show');
+                    }, 10);
+
+                    uploadPlaceholder.style.display = 'none';
+
+                    // Show and enable changeImageBtn
+                    changeImageBtn.style.display = 'inline-flex';
+                    changeImageBtn.disabled = false;
+
+                    // Enable submitBtn and revert its style
+                    submitBtn.disabled = false;
+                    submitBtn.style.background = ''; // Clear disabled background to use default
+                    submitBtn.style.color = ''; // Clear disabled color to use default
+
+                    showMessage('¡Imagen cargada! Revisa la imagen y decide si enviarla.', 'success', 7000);
+                    imageDisplayWrapper.classList.remove('active'); // Remove pulse after image is loaded
+                    imageDisplayWrapper.classList.add('inactive'); // Indicate image is static
+                };
+                reader.readAsDataURL(file); // Read the image as a Data URL for display
+            } else {
+                // If no file selected after opening dialog
+                showMessage('No se seleccionó ninguna imagen.', 'info', 3000);
+                resetUIForUpload(); // Revert to initial state if nothing was picked
+            }
+        });
+
+        // Event listener for "Cambiar Imagen" (Retake) button
+        changeImageBtn.addEventListener('click', () => {
+            if (changeImageBtn.disabled) return;
+            resetUIForUpload();
+            showMessage('Listo para subir una nueva imagen.', 'info', 3000);
+        });
+
+        // Event listener for Submit button
+        submitBtn.addEventListener('click', () => {
+            if (submitBtn.disabled) return;
+
+            if (!selectedFile) {
+                showMessage('No hay ninguna imagen para enviar. Por favor, sube una imagen primero.', 'error', 5000);
+                return;
+            }
+
+            // Show processing message and spinner, disable buttons
+            showMessage('Enviando imagen para análisis, por favor espera...', 'info', 0); // Duration 0 means it won't disappear automatically
+            submitBtn.disabled = true;
+            changeImageBtn.disabled = true;
+
+            // Show spinner on submit button
+            submitBtnText.textContent = 'Enviando...';
+            submitBtnSpinner.style.display = 'inline-block';
+
+            // Use FormData to send the actual file (more robust for file uploads)
+            const formData = new FormData();
+            formData.append('image_file', selectedFile);
+
+            // Send the image using Fetch API (asynchronous)
+            fetch('/upload', { // This should be your Flask endpoint
+                method: 'POST',
+                body: formData, // FormData will set the correct Content-Type header
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        // If the server response is not ok (e.g., 4xx or 5xx status)
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            return response.json().then(err => { throw new Error(err.message || 'Error en el servidor'); });
+                        } else {
+                            // If it's not JSON (e.g., HTML from an error page or direct redirect HTML), throw a generic error
+                            return response.text().then(text => { throw new Error(`Respuesta inesperada del servidor (no JSON): ${text.substring(0, 100)}...`); });
+                        }
+                    }
+                    return response.json(); // Always expect JSON on success
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    showMessage(data.message || 'Imagen enviada con éxito. Resultados en breve.', 'success');
+                    // --- ¡ACTUALIZACIÓN CRUCIAL AQUÍ! ---
+                    // Redirige a la URL que Flask te envió en el JSON
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        // Fallback if Flask somehow doesn't send redirect_url
+                        // You might want to handle this case, e.g., show results on current page
+                        // or provide a default redirect. For now, just a message.
+                        console.warn("Flask response did not contain a redirect_url.");
+                        // To proceed without redirecting if no URL is provided:
+                        // submitBtn.disabled = false;
+                        // changeImageBtn.disabled = false;
+                        // submitBtnText.textContent = 'Enviar';
+                        // submitBtnSpinner.style.display = 'none';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    showMessage(`Error al enviar la imagen: ${error.message}. Intenta de nuevo.`, 'error');
+                    submitBtn.disabled = false;
+                    changeImageBtn.disabled = false;
+                    submitBtnText.textContent = 'Enviar';
+                    submitBtnSpinner.style.display = 'none';
+                });
+        });
+    </script>
+</body>
+
+</html>
